@@ -1,0 +1,181 @@
+.checklist-item {
+  clear: both;
+  padding-left: 40px;
+  position: relative;
+  border-radius: 3px;
+  transform-origin: left bottom;
+  transition-property: transform, opacity, height, padding, margin;
+  transition-duration: .14s;
+  transition-timing-function: ease-in;
+
+  .checklist-item-checkbox {
+    overflow: hidden;
+    white-space: nowrap;
+    transition: all .2s ease-in-out;
+    position: absolute;
+    left: 0;
+    margin: 6px;
+    text-align: center;
+    cursor: pointer;
+
+    .el-checkbox {
+      margin: 0;
+    }
+  }
+
+  .checklist-item-details {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    cursor: pointer;
+
+    .checklist-item-row {
+      display: flex;
+      flex-direction: row;
+
+      .checklist-item-text-and-controls {
+        padding: 6px 0;
+        width: 100%;
+        display: inline-flex;
+
+        .checklist-item-details-text {
+          min-height: 20px;
+          margin-bottom: 0;
+          align-self: center;
+          flex: 1;
+        }
+
+        .checklist-item-controls {
+          display: inline-flex;
+          flex-direction: row;
+          float: right;
+
+          .checklist-item-delete {
+            box-sizing: border-box;
+            padding: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+
+            .delete-item {
+              .delete-child {
+                display: none;
+                margin-right: 5px !important;
+                border-radius: 5px;
+                height: 20px;
+                width: 20px;
+                box-sizing: unset;
+                padding: 2px;
+                margin: -2px;
+                cursor: pointer;
+
+                span {
+                  height: 20px;
+                  font-size: 16px;
+                  line-height: 20px;
+                  width: 20px;
+                  -webkit-font-smoothing: antialiased;
+                  display: inline-block;
+                  font-family: trellicons;
+                  font-style: normal;
+                  font-weight: 400;
+                  text-align: center;
+                  text-decoration: none;
+                  vertical-align: bottom;
+                  cursor: pointer;
+                }
+              }
+
+              .delete-child:hover {
+                background-color: #D9DCE3;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .check-item-options-menu {
+      display: block;
+      float: left;
+      padding-bottom: 9px;
+      z-index: 50;
+      width: 100%;
+
+      textarea {
+        display: block;
+        background: rgba(9, 30, 66, .04);
+        border-color: rgba(9, 30, 66, .13);
+        box-shadow: inset 0 0 0 1px rgb(9 30 66 / 13%);
+        margin-bottom: 4px;
+        outline: none;
+        width: 100%;;
+        border: none;
+        box-sizing: border-box;
+        border-radius: 3px;
+        line-height: 20px;
+        padding: 8px 12px;
+        transition-property: background-color, border-color, box-shadow;
+        transition-duration: 85ms;
+        transition-timing-function: ease;
+      }
+
+      .edit-controls {
+        clear: both;
+        margin-top: 8px;
+        display: flex;
+        flex-direction: row;
+
+        input {
+          float: left;
+          margin: 0 4px 0 0;
+          background-color: #5aac44;
+          box-shadow: none;
+          border: none;
+          color: #fff;
+        }
+
+        input:hover {
+          background-color: #61bd4f;
+        }
+
+        a {
+          margin-left: 5px;
+          color: #6b778c;
+          font-size: 28px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        a:hover {
+          color: #172b4d;
+        }
+      }
+    }
+  }
+}
+
+.checklist-item:hover {
+  background-color: #EAECF0;
+  .checklist-item-details {
+    .checklist-item-row {
+      .checklist-item-text-and-controls {
+        .checklist-item-controls {
+          .checklist-item-delete {
+            .delete-item {
+              .delete-child {
+                display: block;
+                height: 16px;
+                width: 16px;
+                position: relative;
+                span{
+                  position: absolute;
+                  height: 16px!important;
+                  width: 16px!important;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

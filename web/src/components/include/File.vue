@@ -1,21 +1,52 @@
 <template>
   <div class="attachment-thumbnail">
-    <img class="attachment-thumbnail-preview js-open-viewer" src="../../assets/image/1620229.png" alt="">
-    <p class="attachment-thumbnail-details js-open-viewer"><span
-        class="attachment-thumbnail-name">{{ file.name }}</span><a
-        class="attachment-thumbnail-details-title-action dark-hover js-attachment-action js-direct-link"
-        href="https://trello-attachments.s3.amazonaws.com/60433d0b141b081065a261f1/60454334c280f98790a10fc5/5d185c606736c3783ff329ecbb8073ee/Ph%C3%A2n_t%C3%ADch_thi%E1%BA%BFt_k%E1%BA%BF.docx"
-        target="_blank" rel="noreferrer nofollow noopener"><span
-        class="icon-sm icon-external-link"></span></a><span
-        class="u-block quiet attachment-thumbnail-details-title-options"><span>Đã thêm <span
-        class="date past" dt="2021-03-09T14:59:33.508Z"
-        title="9 tháng 3 năm 2021 21:59">{{formatDate(file.created_at)}}</span></span><span><a
-        class="attachment-thumbnail-details-title-options-item dark-hover js-confirm-delete"
-        href="#"><span
-        class="attachment-thumbnail-details-options-item-text" @click="deleteFile">Xoá</span></a></span> - <span><a
-        class="attachment-thumbnail-details-title-options-item dark-hover js-edit" @click="editFile" href="#"><span
-        class="attachment-thumbnail-details-options-item-text" >Chỉnh sửa</span></a></span></span><span
-        class="quiet attachment-thumbnail-details-options"></span></p>
+    <div v-if="isImage(file.name)">
+      <img
+        class="attachment-thumbnail-preview js-open-viewer"
+        :src="file.path" 
+        :alt="file.name"
+      />
+    </div>
+    <div v-else-if="isPDF(file.name)">
+      <embed
+        class="attachment-thumbnail-preview"
+        :src="file.path"
+        type="application/pdf"
+        width="100%"
+        height="400px"
+      />
+    </div>
+    <div v-else>
+      <a
+        :href="file.path"
+        class="attachment-thumbnail-details-title-action dark-hover js-direct-link"
+        target="_blank"
+        rel="noreferrer nofollow noopener"
+      >
+        <span class="icon-sm icon-external-link"></span>
+        {{ file.name }}
+      </a>
+    </div>
+
+    <p class="attachment-thumbnail-details js-open-viewer">
+      <span class="attachment-thumbnail-name">{{ file.name }}</span>
+      <span class="u-block quiet attachment-thumbnail-details-title-options">
+        <span>Đã thêm <span class="date past" dt="2021-03-09T14:59:33.508Z" title="9 tháng 3 năm 2021 21:59">
+          {{ formatDate(file.created_at) }}
+        </span></span>
+        <span>
+          <a class="attachment-thumbnail-details-title-options-item dark-hover js-confirm-delete" href="#">
+            <span class="attachment-thumbnail-details-options-item-text" @click="deleteFile">Xoá</span>
+          </a>
+        </span>
+        - 
+        <span>
+          <a class="attachment-thumbnail-details-title-options-item dark-hover js-edit" @click="editFile" href="#">
+            <span class="attachment-thumbnail-details-options-item-text">Chỉnh sửa</span>
+          </a>
+        </span>
+      </span>
+    </p>
   </div>
 </template>
 
@@ -25,27 +56,35 @@ import moment from "moment";
 export default {
   name: "File",
   props: ['file'],
-  methods:{
-    formatDate(dateString){
-      return 'lúc '+ moment(dateString).format('HH:mm:ss') + ' ngày '+ moment(dateString).format('DD-MM-YYYY')
+  methods: {
+    formatDate(dateString) {
+      return 'lúc ' + moment(dateString).format('HH:mm:ss') + ' ngày ' + moment(dateString).format('DD-MM-YYYY');
     },
-    deleteFile(e){
+    deleteFile(e) {
       let rect = e.target.getBoundingClientRect();
       let data = {
         left: rect.left,
         top: rect.top,
         data: this.file
-      }
-      this.$emit('openDeleteFile',data)
+      };
+      this.$emit('openDeleteFile', data);
     },
-    editFile(e){
+    editFile(e) {
       let rect = e.target.getBoundingClientRect();
       let data = {
         left: rect.left,
         top: rect.top,
         file: this.file
       };
-      this.$emit('showEditFile', data)
+      this.$emit('showEditFile', data);
+    },
+    isImage(fileName) {
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'];
+      const extension = fileName.split('.').pop().toLowerCase();
+      return imageExtensions.includes(extension);
+    },
+    isPDF(fileName) {
+      return fileName.split('.').pop().toLowerCase() === 'pdf';
     }
   }
 }

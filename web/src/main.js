@@ -12,6 +12,7 @@ Vue.use(TextareaAutosize)
 Vue.use(ElementUI, { locale });
 
 Vue.config.productionTip = false
+Vue.config.devtools = process.env.NODE_ENV === 'development';
 
 new Vue({
   router,

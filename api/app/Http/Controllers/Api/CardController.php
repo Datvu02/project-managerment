@@ -114,14 +114,14 @@ class CardController extends Controller
                 $card->user_assign_id = $request->input('user_assign_id');
                 $user =User::find($card->user_assign_id);
                 $project = Project::find(Directory::find($card->directory_id)->project_id);
-                if ($user){
-                    $details = [
-                        'title' => 'M.Work - Nhắc nhở nhiệm vụ mới',
-                        'body' => Auth::user()->name." đã giao cho bạn nhiệm vụ mới trong dự án ".$project->name
-                    ];
-                    \Mail::to($user->email)->send(new \App\Mail\SendMail($details));
+                // if ($user){
+                //     $details = [
+                //         'title' => 'M.Work - Nhắc nhở nhiệm vụ mới',
+                //         'body' => Auth::user()->name." đã giao cho bạn nhiệm vụ mới trong dự án ".$project->name
+                //     ];
+                //     \Mail::to($user->email)->send(new \App\Mail\SendMail($details));
 
-                }
+                // }
             }
             $card->save();
             DB::commit(); 

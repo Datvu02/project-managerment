@@ -24,7 +24,7 @@
                     :index="item.index" :item="item"/>
             </draggable>
 
-            <div class="newList" v-if="!addList">
+            <div class="newList" v-if="userAdmin">
               <div class="btn-add" @click="newList">
                 <i class="el-icon-plus plus"></i>
                 <span>Thêm danh sách khác</span>
@@ -227,9 +227,9 @@
       <EditFile @closeFileEdit="closeFileEdit" @reload="reloadDetail" v-if="showEditFile" :offset="offsetEditFile"/>
 
       <Action v-if="showActionList" @closeAction="closeActionList" @deleteList="deleteList" :offset="offset"
-              v-click-outside="closeActionList"/>
-      <Delete v-if="showDelete" :offset="offsetDelete" @reloadList="reloadList" @closeDelete="closeDelete"
-              @reloadCard="reloadDetail"/>
+              v-click-outside="closeActionList" />
+      <!-- <Delete v-if="showDelete" :offset="offsetDelete" @reloadList="reloadList" @closeDelete="closeDelete"
+              @reloadCard="reloadDetail"/> -->
       <Move v-if="showModalMove" :offset="offsetMove" @updateCardList="getDataList" @closeMove="closeMove" :list="list"/>
     </template>
   </AdminLayout>
@@ -252,7 +252,7 @@ import moment from "moment";
 import Action from "@/components/include/Action";
 import File from "@/components/include/File";
 import EditFile from "@/components/include/EditFile";
-import Delete from "@/components/include/Delete";
+// import Delete from "@/components/include/Delete";
 import Move from "@/components/include/Move";
 
 export default {
@@ -282,7 +282,8 @@ export default {
       showDelete: false,
       offsetMove: {},
       showModalMove: false,
-      users:[]
+      users:[],
+      userAdmin: true
     }
   },
   components: {
@@ -298,7 +299,14 @@ export default {
     Action,
     File,
     EditFile,
-    Delete
+    // Delete
+  },
+  created: async function () {
+    const result = await api.getUserAdminByProject(this.$route.params.projectId);
+    if (result.data.data === 1) {
+        this.userAdmin = false
+        this.showActionList = false
+    }
   },
   methods: {
     ...mapMutations('home', [
@@ -341,22 +349,18 @@ export default {
       this.showActionList = true
     },
     closeActionList() {
-      this.showActionList = false
+        this.reload()
+        this.showActionList = false
     },
     closeMove() {
       this.closeAll()
     },
-    deleteList(id) {
-
-      api.deleteList(id).then(() => {
-        this.reload()
-        this.closeActionList()
-      })
-    },
     newList() {
-      this.addList = true
+        this.userAdmin = false
+        this.addList = true ;
     },
     closeNewList() {
+      this.userAdmin = true
       this.addList = false
     },
     getDataList() {
@@ -442,6 +446,19 @@ export default {
       api.deleteCard(data).then(() => {
         this.closeModal()
         this.getDataList()
+      })
+    },
+    deleteList(id) {
+      console.log('Received id from deleteList event:', id);
+      this.$confirm('Dữ liệu sau khi xóa sẽ không thể khôi phục?', 'Cảnh báo', {
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Đóng',
+        type: 'warning'
+      }).then(() => {
+        console.log(id)
+        api.deleteList(id).then(() => {
+          this.reload();
+        });
       })
     },
     reloadList() {
@@ -551,6 +568,7 @@ export default {
       this.getDetailCard(this.cardDetail.id)
     },
     reload() {
+      console.log('Reloading data...');
       this.getDataList()
       this.loadTitle()
       this.loadDescription()
@@ -617,7 +635,7 @@ export default {
     ]),
     ...mapState('auth', [
       'authUser'
-    ])
+    ]),
   },
   mounted() {
     this.popupItem = this.$el

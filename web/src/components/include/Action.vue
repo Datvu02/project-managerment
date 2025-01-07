@@ -13,7 +13,7 @@
 <!--                <li><a class="js-add-card" href="#">Thêm thẻ...</a></li>-->
 <!--              </ul>-->
               <ul class="pop-over-list">
-                <li><a class="js-close-list remove-list" @click="deleteList" href="#">Xóa danh sách này!</a></li>
+                <li><a class="js-close-list remove-list" @click="deleteList(offset.id, $event)" href="#">Xóa danh sách này!</a></li>
               </ul>
             </div>
           </div>
@@ -24,12 +24,15 @@
 </template>
 
 <script>
+
 export default {
   name: "Action",
   props: ['offset'],
   methods:{
-    deleteList(){
-      this.$emit('deleteList',this.offset.id)
+     deleteList(id){
+      this.$emit('closeAction')
+      this.$emit('deleteList', id)
+
     },
     closeAction(){
       this.$emit('closeAction')

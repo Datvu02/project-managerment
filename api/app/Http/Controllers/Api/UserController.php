@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\UpdateUserRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Models\ProjectUser;
+use App\Models\Directory;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +74,28 @@ class UserController extends Controller
         }
         return response()->json([
             'data'=>$data
+        ]);
+    }
+
+    public function getUserAdminByProject($id){
+        $project = Project::where('id', $id)->first();
+        $admin = User::where('id', $project->user_id)->first();
+        // dd($project->user_id, Auth::id());
+        if ($project->user_id == Auth::id()){
+            return response()->json([
+                'data'=> 0
+            ]);
+        }
+        return response()->json([
+            'data'=> 1
+        ]);
+    }
+    
+    public function getUserAdminByDirectory($id){
+        $directory = Directory::find($id);
+        $admin = User::where('user_id', $directory->user_id)->first();
+        return response()->json([
+            'data'=>$admin
         ]);
     }
 

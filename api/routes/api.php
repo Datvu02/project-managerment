@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\FileController;
@@ -13,7 +12,6 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TodoController;
 use App\Http\Controllers\Api\ProjectController;
-use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +103,7 @@ Route::group(['prefix' => '/products'], function () {
 });
 Route::group(['prefix' => '/users'], function () {
     Route::get('/',[UserController::class,'listUser']);
+    Route::get('/projectAdmin/{id}',[UserController::class,'getUserAdminByProject']);
     Route::get('/project/{id}',[UserController::class,'listUserByProject']);
 });
 

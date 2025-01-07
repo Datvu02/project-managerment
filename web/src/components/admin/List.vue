@@ -25,7 +25,7 @@
         <NewCard v-if="cardAddOpen" v-click-outside="closeAddCard" @addCard="handleAddCard" @closeAddCard="closeAddCard"
                  :directory="item"></NewCard>
       </div>
-      <div class="listFooter" v-if="!cardAddOpen">
+      <div class="listFooter" v-if="userAdmin">
         <div class="openCard" @click="openAddCard">
           <span class="icon-add-card"><i class="el-icon-plus"></i></span>
           <span class="text-add-card">Thêm thẻ khác</span>
@@ -49,12 +49,20 @@ export default {
     return {
       'listTitle': '',
       'cardAddOpen': false,
+      'userAdmin': false
     }
   },
   components: {
     Todo,
     draggable,
     NewCard
+  },
+  created: async function () {
+      const result = await api.getUserAdminByProject(this.$route.params.projectId);
+      console.log(result.data.data)
+    if (result.data.data === 0) {
+        this.userAdmin = true
+    }
   },
   methods: {
     moveTodo(e) {
@@ -86,11 +94,12 @@ export default {
       this.listTitle = this.item.title;
     },
     openAddCard() {
-      console.log('a')
+      this.userAdmin = false
       this.cardAddOpen = true;
     },
 
     closeAddCard() {
+      this.userAdmin = true
       this.cardAddOpen = false;
     },
     updateListTitle(e) {

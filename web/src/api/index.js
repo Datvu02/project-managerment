@@ -302,6 +302,12 @@ export default {
               url: '/users/project/'+id,
           })
       },
+    getUserAdminByProject(id) {
+          return apiAxios({
+              method: 'get',
+              url: '/users/projectAdmin/'+id,
+          })
+      },
     getMyProject(){
       return apiAxios({
         method: 'get',

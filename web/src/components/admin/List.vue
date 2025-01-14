@@ -6,7 +6,7 @@
                   @keydown.enter="updateListTitle" @blur="updateListTitle" name="" id=""
                   cols="30" rows="10" :value="listTitle" placeholder="Nhập vào tiêu đề danh sách..."
         ></textarea>
-        <div class="menu" @click="openActionList"><i class="el-icon-more"></i></div>
+        <div class="menu" v-if="userAdmin" @click="openActionList"><i class="el-icon-more"></i></div>
       </div>
       <div class="listCard">
         <draggable
@@ -41,6 +41,7 @@ import draggable from 'vuedraggable'
 import ClickOutside from 'vue-click-outside'
 import NewCard from "@/components/include/NewCard";
 import api from "@/api";
+// import { use } from "vue/types/umd";
 
 export default {
   name: "List",
@@ -104,13 +105,16 @@ export default {
     },
     updateListTitle(e) {
       e.target.blur();
-      let updateTile = {
-        data: {
-          title: e.target.value
-        },
-        id: this.item.id
+      if (this.userAdmin) {
+        let updateTile = {
+          data: {
+            title: e.target.value
+          },
+          id: this.item.id
+        }
+        this.$emit('updateListTitle', updateTile);
       }
-      this.$emit('updateListTitle', updateTile);
+      this.$emit('reloadList');
     },
     handleAddCard(data) {
       api.addCards(data).then(() => {

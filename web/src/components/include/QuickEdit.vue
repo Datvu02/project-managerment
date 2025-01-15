@@ -58,7 +58,7 @@
             class="icon-sm icon-label light"><i class="el-icon-price-tag"></i></span><span
             class="quick-card-editor-buttons-item-text">Chỉnh sửa nhãn</span>
         </a>
-        <a class="quick-card-editor-buttons-item deadline-quick-edit"><span
+        <!-- <a class="quick-card-editor-buttons-item deadline-quick-edit"><span
             class="icon-sm icon-label light"><i class="el-icon-time"></i></span><span
             class="quick-card-editor-buttons-item-text">Chỉnh sửa thời gian</span>
           <el-date-picker
@@ -67,7 +67,7 @@
               @change="changeDeadline"
           >
           </el-date-picker>
-        </a>
+        </a> -->
         <a class="quick-card-editor-buttons-item js-edit-labels" @click="moveCard" href="#"><span
             class="icon-sm icon-label light"><i class="el-icon-right"></i></span><span
             class="quick-card-editor-buttons-item-text">Di chuyển</span>

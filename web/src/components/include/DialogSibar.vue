@@ -7,7 +7,7 @@
                 <span class="icon-sm icon-label"><i class="el-icon-price-tag"></i></span>
                 <span class="js-sidebar-action-text">Nhãn</span>
             </a>
-            <a class="button-link js-add-checklist-menu" @click="showControl($event,'checkList')" title="Việc cần làm">
+            <a v-if="userAssign" class="button-link js-add-checklist-menu" @click="showControl($event,'checkList')" title="Việc cần làm">
                 <span class="icon-sm icon-checklist"><i class="el-icon-folder-checked"></i></span>
                 <span class="js-sidebar-action-text">Việc cần làm</span>
             </a>
@@ -32,7 +32,7 @@
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
                 <span class="js-sidebar-action-text">Xoá</span>
             </a>
-            <a v-if="!userAdmin" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Nộp">
+            <a v-if="userAssign" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Nộp">
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
                 <span class="js-sidebar-action-text">Nộp</span>
             </a>
@@ -42,11 +42,7 @@
             </a>
             <a v-if="userAdmin" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Chưa hoàn thành">
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
-                <span class="js-sidebar-action-text">Xoá</span>
-            </a>
-            <a v-if="userAdmin" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Đóng">
-                <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
-                <span class="js-sidebar-action-text">Đóng</span>
+                <span class="js-sidebar-action-text">Chưa hoàn thành</span>
             </a>
         </div>
     </div>
@@ -58,15 +54,16 @@ import moment from 'moment'
 import api from '../../api'
 export default {
     name: "DialogSibar",
-    props: ['card'],
+    props: ['card', 'userAssign'],
     data() {
         return {
             deadLine: '',
             userAdmin: true,
-            file: ''
+            file: '',
         }
     },
     created: async function () {
+        console.log(this.userAssign)
         const result = await api.getUserAdminByProject(this.$route.params.projectId);
         if (result.data.data === 1) {
             this.userAdmin = false
@@ -88,6 +85,11 @@ export default {
             })
 
         },
+        // checkUserAssign() {
+        //     if (this.authUser.id === this.card.user_assign_id) {
+        //         this.userAssign = true
+        //     }
+        // },
         changeDeadline() {
             let data = {
                 deadline: this.formatDate(this.deadLine)

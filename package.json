@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "dayjs": "^1.11.13"
+  },
+  "devDependencies": {
+    "sass": "^1.83.4",
+    "sass-loader": "^16.0.4"
+  }
+}

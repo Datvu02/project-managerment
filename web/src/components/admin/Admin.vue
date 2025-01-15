@@ -25,7 +25,7 @@
             </div>
         </div>
         <ModalSidebar v-if="showControlModalSidebar" @searchLabel="searchDatalabel" :card="card" :labels="labels" @closeLabelModal="closeControlModal" :offset="offset" @reloadLabel="reloadLabel" />
-        <QuickEdit v-if="showQuickEdit" @updateCard="quickEditCardTitle" @showControl="handleShowControl" @deleteCard="deleteCard" @closeQuickEdit="closeQuickEdit" @showMove="showMove" :card="card" :offset="offsetEdit" @openModal="openDetailCard" @updateCardList="getDataList" />
+        <QuickEdit v-if="showQuickEdit && userAdmin" @updateCard="quickEditCardTitle" @showControl="handleShowControl" @deleteCard="deleteCard" @closeQuickEdit="closeQuickEdit" @showMove="showMove" :card="card" :offset="offsetEdit" @openModal="openDetailCard" @updateCardList="getDataList" />
         <el-dialog v-if="dialogFormVisible" id="detailTodo" class="dialogTodo" :append-to-body="true" width="40%" :show-close="false" :visible.sync="dialogFormVisible" @close="closeModal">
             <div class="window-wrapper js-tab-parent" data-elevation="1"><a class="icon-md icon-close close-button js-close-window" @click="closeModal"><i class="iconColse el-icon-close"></i></a>
                 <div class="card-detail-window u-clearfix">
@@ -151,7 +151,7 @@
                                 <CheckList v-for="(item, index) in cardDetail.check_lists" @updateCheckList="reloadDetail" :checkList="item" @openDeleteCheckList="openDeleteCheckList" :key="index" :card="cardDetail" />
                             </div>
                         </div>
-                        <DialogSibar @updateDetailCard="getDetailCard(cardDetail.id)" @showControl="handleShowControl" @deleteCard="deleteCard" @changeDeadline="changeDeadline" :card="cardDetail" />
+                        <DialogSibar v-if="userByCard" :userAssign="userAssign" @updateDetailCard="getDetailCard(cardDetail.id)" @showControl="handleShowControl" @deleteCard="deleteCard" @changeDeadline="changeDeadline" :card="cardDetail" />
                     </div>
                 </div>
             </div>
@@ -218,7 +218,9 @@ export default {
             offsetMove: {},
             showModalMove: false,
             users: [],
-            userAdmin: true
+            userAdmin: true,
+            userAssign: false,
+            userByCard: false
         }
     },
     components: {
@@ -242,19 +244,17 @@ export default {
             this.userAdmin = false
             this.showActionList = false
         }
+        console.log(this.authUser.id)
     },
     methods: {
         ...mapMutations('home', [
             'updateList', 'updateCardDetail'
         ]),
         assign(user_id) {
-            console.log(user_id)
-            console.log(this.cardDetail.id)
             let data = {
                 user_assign_id: user_id
             }
-            api.updateCard(data, this.card.id).then((res) => {
-                console.log(res)
+            api.updateCard(data, this.card.id).then(()=> {
                 this.getDetailCard(this.card.id)
             })
         },
@@ -262,6 +262,17 @@ export default {
             api.listUserByProject(this.$route.params.projectId).then((res) => {
                 this.users = res.data.data
             })
+        },
+        checkUserAssign(id) {
+            if (this.authUser.id === id) {
+                this.userAssign = true
+            }
+        },
+        checkUserByCard(id) {
+            console.log(id)
+            if (this.authUser.id === id || this.authUser.id === this.card.user_id) {
+                this.userByCard = true
+            }
         },
         moveList(e) {
             let id = e.draggedContext.element.id
@@ -352,10 +363,17 @@ export default {
             this.showControlModalSidebar = false
         },
         openQuickEdit(data) {
-            this.closeAll()
-            this.offsetEdit = data
-            this.getDetailCard(data.id)
-            this.showQuickEdit = true;
+            if (this.userAdmin) {
+                this.closeAll()
+                this.offsetEdit = data
+                this.getDetailCard(data.id)
+                this.showQuickEdit = true;
+            } else {
+                this.closeAll()
+                this.offsetEdit = data
+                this.openDetailCard(data.id)
+                this.showQuickEdit = true;
+            }
         },
         closeQuickEdit() {
             this.showQuickEdit = false;
@@ -365,20 +383,30 @@ export default {
             await api.getCard(id).then((response) => {
                 this.card = response.data.data;
                 this.updateCardDetail(this.card)
+                this.checkUserByCard(this.card.user_assign_id)
+                this.checkUserAssign(this.card.user_assign_id)
                 this.reload()
                 this.dialogFormVisible = true
             })
-
         },
         closeModal() {
             this.showControlModalSidebar = false
             this.dialogFormVisible = false
+            this.userAssign = false
+            this.userByCard = false
             this.closeAll()
         },
         deleteCard(data) {
-            api.deleteCard(data).then(() => {
-                this.closeModal()
-                this.getDataList()
+            console.log('Received id from deleteCard event:', data);
+            this.$confirm('Dữ liệu sau khi xóa sẽ không thể khôi phục?', 'Cảnh báo', {
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Đóng',
+                type: 'warning'
+            }).then(() => {
+                api.deleteCard(data).then(() => {
+                    this.closeModal()
+                    this.getDataList()
+                })
             })
         },
         deleteList(id) {

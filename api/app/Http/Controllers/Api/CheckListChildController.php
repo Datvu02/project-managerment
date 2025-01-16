@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Http\Response;
+use App\Http\Requests\Card\UploadFileRequest;
+use Illuminate\Support\Facades\Storage;
+use App\Models\File;
 
 class CheckListChildController extends Controller
 {
@@ -127,5 +130,50 @@ class CheckListChildController extends Controller
             'code' => 200,
             'message' => 'success',
         ]);
+    }
+    
+    public function uploadFileCheckList(UploadFileRequest $request, $id)
+    {
+        Log::info('Upload file check list child');
+        DB::beginTransaction();
+        try {
+            $data = $request->file('file');
+            $path = Storage::disk('public')->putFileAs('files', $data, $data->getClientOriginalName());
+
+            $file = new File();
+            $file->path = $path;
+            $file->name = $data->getClientOriginalName();
+            $file->check_list_child_id = $id;
+            $file->save();
+            DB::commit();
+
+            return response()->json([
+                'code'    => 200,
+                'message' => 'success'
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Error store file', [
+                'method'  => __METHOD__,
+                'message'  => 'Server Error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getFiles($id)
+    {
+        try {
+            $files = File::where('check_list_child_id', $id)->get();
+            return response()->json([
+                'code'    => 200,
+                'message' => 'success',
+                'data'    => $files
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Server Error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

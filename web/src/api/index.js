@@ -332,5 +332,36 @@ export default {
         method: 'get',
         url: '/projects/cards/'+id
       })
-    }
+    },
+    uploadFileCheckList(data, id) {
+        return apiAxios({
+            method: 'post',
+            url: 'check-list-childs/' + id + '/upload-file-check-list',
+            data: data
+        })
+    },
+    getFiles(id) {
+        return apiAxios({
+            method: 'get',
+            url: 'check-list-childs/' + id + '/getFiles',
+        })
+    },
+    submitCard(id) {
+        return apiAxios({
+            method: 'post',
+            url: '/cards/' + id + '/submit',
+        })
+    },
+    checkSubmitDone(id){
+      return apiAxios({
+        method: 'post',
+        url: '/cards/' + id + '/checkSubmitDone',
+      })
+    },
+    checkSubmitFailed(id){
+      return apiAxios({
+        method: 'post',
+        url: '/cards/' + id + '/checkSubmitFailed',
+      })
+    },
 }

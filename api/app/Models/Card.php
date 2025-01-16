@@ -14,9 +14,17 @@ class Card extends Model
          'is_almost_expired' => 2,
          'expired' => 1,
          'done' => 3,
+         'submit' => 4,
+    ];
+    const COMPLETION_STATUS =
+    [
+         'default' => 0,
+         'submitted' => 1,
+         'checkSubmitDone' => 2,
+         'checkSubmitFailed' => 3,
     ];
     protected $table = 'cards';
-    protected $fillable = ['title', 'description', 'status', 'directory_id', 'index', 'deadline','user_id'];
+    protected $fillable = ['title', 'description', 'status', 'directory_id', 'index', 'deadline','user_id', 'completion_status', 'completion_deadline'];
 
     public function labels()
     {

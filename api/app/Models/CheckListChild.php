@@ -14,4 +14,9 @@ class CheckListChild extends Model
     ];
     protected $table = 'check_list_child';
     protected $fillable = ['title', 'check_list_id', 'status'];
+    
+    public function files()
+    {
+        return $this->hasMany(File::class);
+    }
 }

@@ -457,4 +457,85 @@ class CardController extends Controller
         }       
 
     }
+
+    public function publishCard($id) {
+        DB::beginTransaction();
+        try {
+            $card = Card::findOrFail($id);
+            $card->completion_status = Card::COMPLETION_STATUS['submitted'];
+            $card->save();
+            DB::commit();
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'success',
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Error publish card', [
+                'method' => __METHOD__,
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Server Error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    public function checkSubmitDone($id) {
+        DB::beginTransaction();
+        try {
+            $card = Card::findOrFail($id);
+            $card->completion_status = Card::COMPLETION_STATUS['checkSubmitDone'];
+            $card->status = Card::COMPLETION_STATUS['done'];
+            $card->completion_date = Carbon::now();
+            $card->save();
+            DB::commit();
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'success',
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Error publish card', [
+                'method' => __METHOD__,
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Server Error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function checkSubmitFailed($id) {
+        DB::beginTransaction();
+        try {
+            $card = Card::findOrFail($id);
+            $card->completion_status = Card::COMPLETION_STATUS['checkSubmitFailed'];
+            $card->save();
+            DB::commit();
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'success',
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Error publish card', [
+                'method' => __METHOD__,
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Server Error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }

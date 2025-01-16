@@ -67,6 +67,9 @@ Route::group(['middleware' => ['api', 'jwt.auth']], function () {
         Route::post('/{id}/attach-labels', [CardController::class, 'attachExistLabel']);
         Route::delete('/{id}/detach-labels', [CardController::class, 'detachLabel']);
         Route::post('/{id}/label', [CardController::class, 'attachNewLabelWithCard']);
+        Route::post('/{id}/submit', [CardController::class, 'publishCard']);
+        Route::post('/{id}/checkSubmitDone', [CardController::class, 'checkSubmitDone']);
+        Route::post('/{id}/checkSubmitFailed', [CardController::class, 'checkSubmitFailed']);
     });
 
     Route::group(['prefix' => '/check-lists'], function () {
@@ -79,7 +82,9 @@ Route::group(['middleware' => ['api', 'jwt.auth']], function () {
         Route::post('/',[CheckListChildController::class,'store']);
         Route::put('/{id}',[CheckListChildController::class,'update']);
         Route::delete('/{id}',[CheckListChildController::class,'destroy']);
+        Route::post('/{id}/upload-file-check-list', [CheckListChildController::class, 'uploadFileCheckList']);
         Route::put('/{id}/change-status',[CheckListChildController::class,'changeStatus']);
+        Route::get('/{id}/getFiles',[CheckListChildController::class,'getFiles']);
     });
     
     Route::group(['prefix' => '/users'], function () {

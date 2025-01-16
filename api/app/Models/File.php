@@ -9,5 +9,5 @@ class File extends Model
 {
     use HasFactory;
     protected $table = 'files';
-    protected $fillable = ['name', 'path', 'card_id'];
+    protected $fillable = ['name', 'path', 'card_id', 'check_list_child_id'];
 }

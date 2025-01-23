@@ -70,6 +70,7 @@ Route::group(['middleware' => ['api', 'jwt.auth']], function () {
         Route::post('/{id}/submit', [CardController::class, 'publishCard']);
         Route::post('/{id}/checkSubmitDone', [CardController::class, 'checkSubmitDone']);
         Route::post('/{id}/checkSubmitFailed', [CardController::class, 'checkSubmitFailed']);
+        Route::get('/{id}/{user_id}/getAllCardByUserInProject', [CardController::class, 'getAllCardByUserInProject']);
     });
 
     Route::group(['prefix' => '/check-lists'], function () {
@@ -110,6 +111,7 @@ Route::group(['prefix' => '/users'], function () {
     Route::get('/',[UserController::class,'listUser']);
     Route::get('/projectAdmin/{id}',[UserController::class,'getUserAdminByProject']);
     Route::get('/project/{id}',[UserController::class,'listUserByProject']);
+    Route::get('/searchUserByEmail/{email}',[UserController::class,'searchUserByEmail']);
 });
 
 Route::group(['prefix' => '/projects'], function () {

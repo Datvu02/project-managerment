@@ -490,7 +490,7 @@ class CardController extends Controller
             $card = Card::findOrFail($id);
             $card->completion_status = Card::COMPLETION_STATUS['checkSubmitDone'];
             $card->status = Card::COMPLETION_STATUS['done'];
-            $card->completion_date = Carbon::now();
+            $card->completion_deadline = Carbon::now();
             $card->save();
             DB::commit();
 
@@ -537,5 +537,26 @@ class CardController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    public function getAllCardByUserInProject($id, $userId)
+    {
+        try {
+            $cards = Card::where('project_id', $id)  // Lọc theo projectId
+                ->where('user_assign_id', $userId)  // Lọc theo userId
+                ->orderBy('index', 'asc')  // Sắp xếp công việc theo chỉ mục
+                ->get();
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'success',
+                'data' => $cards
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching cards for project', ['message' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Server Error'
+            ], 500);
+        }
+    }
+
     
 }

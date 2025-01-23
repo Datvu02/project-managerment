@@ -26,16 +26,27 @@
                     <el-input style="margin-bottom: 20px" type="textarea" :rows="2" placeholder="Nhập mô tả dự án" v-model="description">
                     </el-input>
                     <div class="users">
-                        <div class="label">
+                        <el-input v-model="searchEmail" placeholder="Tìm kiếm theo email" @input="searchUserByEmail" prefix-icon="el-icon-search"></el-input>
+
+                        <div class="label" v-if="users.length > 0">
                             <p>
                                 <el-icon class="el-icon-user"></el-icon> Thành viên dự án
                             </p>
                         </div>
-                        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">Chọn tất cả</el-checkbox>
-                        <div style="margin: 15px 0;"></div>
-                        <el-checkbox-group v-model="checkedUser" @change="handleCheckedCitiesChange">
-                            <el-checkbox v-for="user in users" :label="user.id" :key="user.id">{{user.name}}</el-checkbox>
+
+                        <el-checkbox-group v-model="checkedUser" @change="handleCheckedCitiesChange" v-if="userAll.length > 0">
+                            <el-checkbox v-for="user in users" :label="user.id" :key="user.id">
+                                {{ user.name }}
+                            </el-checkbox>
                         </el-checkbox-group>
+
+                        <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange" v-if="users.length > 0">
+                            Chọn tất cả
+                        </el-checkbox> -->
+
+                        <!-- Hiển thị khi không có người dùng nào -->
+                        <p v-if="users.length === 0 && searchEmail.length >= 3">Không tìm thấy người dùng nào với email này.</p>
+
                         <div class="buton" style="text-align: right">
                             <el-button @click="addProject" type="primary" plain>Thêm mới</el-button>
                         </div>
@@ -75,9 +86,9 @@
                         <ul>
                             <li v-for="(user) in projectAnalytic.users" :key="user.id" style="list-style: none; text-align: left">
                                 <div class="u" style="display: flex; padding: 5px">
-                                    <img v-if="user.avatar && user.avatar.length > 0" :src="'http://127.0.0.1:8000/storage/users/'+ user.avatar" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
-                                    <img v-else src="https://image.shutterstock.com/image-vector/default-avatar-profile-icon-grey-260nw-518740753.jpg" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
-                                    <span style="margin-top: 13px; margin-left: 10px;">{{ user.name }}</span>
+                                    <img v-if="user.avatar && user.avatar.length > 0" :src="'http://127.0.0.1:8000/storage/users/' + user.avatar" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%" />
+                                    <img v-else src="https://image.shutterstock.com/image-vector/default-avatar-profile-icon-grey-260nw-518740753.jpg" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%" />
+                                    <span @click="showTaskList(projectAnalytic.id, user.id)" style="margin-top: 13px; margin-left: 10px; cursor: pointer;">{{ user.name }}</span>
                                 </div>
                             </li>
                         </ul>
@@ -85,18 +96,21 @@
                 </el-row>
             </div>
         </el-dialog>
+        <MemberTaskList v-if="showTaskListVisible" :projectId="selectedProjectId" :userId="selectedUserId" :projectAnalytic="projectAnalytic" :closeModal="closeModal"/>
     </template>
 </AdminLayout>
 </template>
 
 <script>
 import AdminLayout from "@/layouts/AdminLayout";
+import MemberTaskList from "@/components/include/MemberTaskList";
 import api from '../../api'
 import {
     mapState
 } from "vuex";
 import Chart from 'chart.js'
 import _ from "lodash";
+import axios from "axios";
 
 export default {
     name: "Project",
@@ -106,23 +120,78 @@ export default {
             is_add: false,
             name: '',
             description: '',
-            users: [],
+            users: [], // Mảng người dùng bắt đầu là rỗng
             isIndeterminate: false,
             checkAll: false,
-            checkedUser: [],
+            checkedUser: [], // Danh sách người dùng đã chọn
             projects: [],
             cardsByProject: [],
-            projectAnalytic: {}
+            projectAnalytic: {},
+            searchEmail: '', // Biến lưu trữ giá trị email nhập vào
+            userAll: [],
+            selectedUsers: [],
+            newUsers: [],
+            showTaskListVisible: false,
+            selectedProjectId: null,
+            selectedUserId: null,
         }
     },
     components: {
         AdminLayout,
+        MemberTaskList,
     },
     mounted() {
         this.getAllUser()
         this.getMyProject()
     },
     methods: {
+        showTaskList(projectId, userId) {
+            this.showTaskListVisible = true;
+            this.selectedProjectId = projectId;
+            this.selectedUserId = userId;
+            console.log("Hiển thị công việc cho dự án ID:", projectId, " và người dùng ID:", userId);
+        },
+        searchUserByEmail() {
+            if (this.searchEmail.length >= 3) { // Chỉ tìm kiếm khi ít nhất có 3 ký tự
+                axios.get(`http://127.0.0.1:8000/api/users/searchUserByEmail/${this.searchEmail}`)
+                    .then((response) => {
+                        const newUsers = response.data.data; // Cập nhật lại danh sách người dùng tìm được
+                        this.users = newUsers;
+
+                        // Giữ lại các ID người dùng đã chọn từ danh sách hiện tại
+                        this.retainCheckedUsers(newUsers);
+                    })
+                    .catch((error) => {
+                        console.error('Lỗi khi tìm kiếm người dùng: ', error);
+                        this.users = []; // Nếu có lỗi, xóa danh sách người dùng
+                    });
+            } else {
+                this.users = []; // Nếu email có ít hơn 3 ký tự, reset lại danh sách người dùng
+            }
+        },
+
+        retainCheckedUsers(newUsers) {
+            // Lặp qua danh sách người dùng đã chọn và kiểm tra xem người dùng đó có trong danh sách người dùng hiện tại không
+            this.checkedUser = this.checkedUser.filter(id =>
+                newUsers.some(user => user.id === id)
+            );
+        },
+
+        // handleCheckAllChange() {
+        //     if (this.checkAll) {
+        //         this.checkedUser = this.users.map(user => user.id); // Chọn tất cả người dùng
+        //     } else {
+        //         this.checkedUser = []; // Bỏ chọn tất cả người dùng
+        //     }
+        // },
+
+        handleCheckedCitiesChange() {
+            // Lọc tất cả người dùng được chọn từ danh sách userAll
+            this.selectedUsers = [...new Set([...this.selectedUsers, ...this.checkedUser])];
+
+            // Log danh sách người dùng đã chọn
+            console.log(this.selectedUsers);
+        },
         analytic(project, e) {
             e.stopPropagation()
             this.projectAnalytic = project
@@ -175,8 +244,8 @@ export default {
                         type: 'success',
                         message: res.data.message
                     });
+                    this.getMyProject(); // Cập nhật lại danh sách dự án
                 });
-                this.getMyProject()
             })
         },
         detailProject(id) {
@@ -196,40 +265,46 @@ export default {
             let data = {
                 name: this.name,
                 description: this.description,
-                usersId: this.checkedUser
-            }
+                usersId: this.selectedUsers // Dữ liệu người dùng đã chọn
+            };
+            console.log(data);
             api.storeProject(data).then((res) => {
-                this.$message(res.data.message)
-                this.is_add = false
-                this.name = ''
-                this.description = ''
-                this.isIndeterminate = false
-                this.checkAll = false
-                this.checkedUser = []
-                this.getMyProject()
-            })
+                this.$message(res.data.message);
+                this.is_add = false;
+                this.name = '';
+                this.description = '';
+                this.isIndeterminate = false;
+                this.checkAll = false;
+                this.checkedUser = []; // Reset danh sách đã chọn
+                this.getMyProject(); // Lấy lại danh sách dự án
+            }).catch((error) => {
+                console.error("Lỗi khi thêm dự án: ", error);
+            });
         },
-        handleCheckAllChange(val) {
-            let arr = []
-            this.users.forEach(function (user) {
-                arr.push(user.id)
-            })
-            this.checkedUser = val ? arr : [];
-            this.isIndeterminate = false;
-        },
-        handleCheckedCitiesChange(value) {
-            let checkedCount = value.length;
-            this.checkAll = checkedCount === this.users.length;
-            this.isIndeterminate = checkedCount > 0 && checkedCount < this.users.length;
-        },
+        // handleCheckAllChange(val) {
+        //     let arr = []
+        //     this.users.forEach(function (user) {
+        //         arr.push(user.id)
+        //     })
+        //     this.checkedUser = val ? arr : [];
+        //     this.isIndeterminate = false;
+        // },
+        // handleCheckedCitiesChange(value) {
+        //     let checkedCount = value.length;
+        //     this.checkAll = checkedCount === this.users.length;
+        //     this.isIndeterminate = checkedCount > 0 && checkedCount < this.users.length;
+        // },
         create() {
             this.is_add = true
         },
         getAllUser() {
             api.allUser().then((res) => {
-                this.users = res.data.data
+                this.userAll = res.data.data
             })
-        }
+        },
+        closeModal() {
+            this.showTaskListVisible = false
+        },
     },
     computed: {
         ...mapState('auth', [

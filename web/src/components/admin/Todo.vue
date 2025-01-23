@@ -22,8 +22,8 @@
             </span>
             <span class="custom-field-front-badges js-custom-field-badges"><span></span></span>
             <span class="js-plugin-badges"><span></span></span>
-            <img v-if="card.user && card.user.avatar && card.user.avatar.length > 0" style="width: 30px; height: 30px; position: absolute; bottom: 5px; right: 5px; border-radius: 50%" :src="'http://127.0.0.1:8000/storage/users/'+ card.user.avatar" alt="">
-            <img v-if="card.user && card.user.avatar.length === 0" style="width: 30px; height: 30px; position: absolute; bottom: 5px; right: 5px; border-radius: 50%" src="https://image.shutterstock.com/image-vector/default-avatar-profile-icon-grey-260nw-518740753.jpg" alt="">
+            <img v-if="card.user && card.user.avatar && card.user.avatar" style="width: 30px; height: 30px; position: absolute; bottom: 5px; right: 5px; border-radius: 50%" :src="'http://127.0.0.1:8000/storage/users/'+ card.user.avatar" alt="">
+            <img v-if="card.user && ! card.user.avatar" style="width: 30px; height: 30px; position: absolute; bottom: 5px; right: 5px; border-radius: 50%" src="https://image.shutterstock.com/image-vector/default-avatar-profile-icon-grey-260nw-518740753.jpg" alt="">
         </div>
     </div>
 </div>

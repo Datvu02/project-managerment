@@ -7,7 +7,7 @@
                 <span class="icon-sm icon-label"><i class="el-icon-price-tag"></i></span>
                 <span class="js-sidebar-action-text">Nhãn</span>
             </a>
-            <a v-if="userAssign" class="button-link js-add-checklist-menu" @click="showControl($event,'checkList')" title="Việc cần làm">
+            <a v-if="userAssign && (card.completion_status === 0 || card.completion_status === 3)" class="button-link js-add-checklist-menu" @click="showControl($event,'checkList')" title="Việc cần làm">
                 <span class="icon-sm icon-checklist"><i class="el-icon-folder-checked"></i></span>
                 <span class="js-sidebar-action-text">Việc cần làm</span>
             </a>
@@ -32,15 +32,15 @@
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
                 <span class="js-sidebar-action-text">Xoá</span>
             </a>
-            <a v-if="userAssign" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Nộp">
+            <a v-if="userAssign && (card.completion_status === 0 || card.completion_status === 3)" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="Submit" title="Nộp">
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
                 <span class="js-sidebar-action-text">Nộp</span>
             </a>
-            <a v-if="userAdmin" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Đã hoàn thành">
+            <a v-if="userAdmin && card.completion_status === 1" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="checkSubmitDone" title="Đã hoàn thành">
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
                 <span class="js-sidebar-action-text">Xác nhận</span>
             </a>
-            <a v-if="userAdmin" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="deleteCard" title="Chưa hoàn thành">
+            <a v-if="userAdmin && card.completion_status === 1" class="button-link js-delete-card remove-sidebar hide negate" href="#" @click="checkSubmitFailed" title="Chưa hoàn thành">
                 <span class="icon-sm icon-remove"><i class="el-icon-minus"></i></span>
                 <span class="js-sidebar-action-text">Chưa hoàn thành</span>
             </a>
@@ -112,7 +112,20 @@ export default {
         },
         deleteCard() {
             this.$emit('deleteCard', this.card.id)
+        },
+        
+        Submit() {
+            this.$emit('SubmitCard', this.card.id)
+        },
+        
+        checkSubmitDone() {
+            this.$emit('checkSubmitDone', this.card.id)
+        },
+        
+        checkSubmitFailed() {
+            this.$emit('checkSubmitFailed', this.card.id)
         }
+
     }
 }
 </script>

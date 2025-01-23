@@ -125,4 +125,36 @@ class UserController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    public function searchUserByEmail($email)
+    {
+        DB::beginTransaction();
+        try {
+            // Tìm kiếm tất cả người dùng có email khớp
+            $users = User::where('email', 'like', '%' . $email . '%')->get();
+
+            // Nếu không tìm thấy người dùng nào
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'message' => 'Không tìm thấy người dùng'
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            DB::commit();
+            return response()->json([
+                'data' => $users
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Error get user', [
+                'method' => __METHOD__,
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Server Error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+}
+
 }

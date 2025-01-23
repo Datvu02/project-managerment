@@ -82,8 +82,8 @@
                                             <h3 class="u-inline-block"><i class="el-icon-user" style="font-size: 25px; margin-right: 20px;"></i>Phân công</h3>
                                             <div class="editable" attr="desc" style="padding-left: 45px; display: flex">
                                                 <div class="user_asign" style="display: flex">
-                                                    <img v-if="cardDetail.user && cardDetail.user.avatar && cardDetail.user.avatar.length > 0" :src="'http://127.0.0.1:8000/storage/users/'+ cardDetail.user.avatar" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
-                                                    <img v-if="cardDetail.user &&  cardDetail.user.avatar.length == 0" src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Fvector-art%2F9292244-default-avatar-icon-vector-of-social-media-user&psig=AOvVaw1sLMo11fFheeb48qCpSh_L&ust=1736840895546000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCLDIzNSa8ooDFQAAAAAdAAAAABAE" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
+                                                    <img v-if="cardDetail.user && cardDetail.user.avatar && cardDetail.user.avatar" :src="'http://127.0.0.1:8000/storage/users/'+ cardDetail.user.avatar" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
+                                                    <img v-if="cardDetail.user &&  ! cardDetail.user.avatar" src="https://image.shutterstock.com/image-vector/default-avatar-profile-icon-grey-260nw-518740753.jpg" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
                                                     <span style="margin-top: 13px; margin-left: 10px;" v-if="cardDetail.user">{{ cardDetail.user.name }}</span>
                                                 </div>
                                                 <el-dropdown trigger="click" @command="assign" style="line-height: 60px; margin-left: 25px; cursor: pointer">
@@ -92,8 +92,8 @@
                                                     </span>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item style="display: flex; padding: 5px 20px" v-for="(user) in users" :key="user.id" :command="user.id">
-                                                            <img v-if="user.avatar && user.avatar.length > 0" :src="'http://127.0.0.1:8000/storage/users/'+ user.avatar" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
-                                                            <img v-else src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Fvector-art%2F9292244-default-avatar-icon-vector-of-social-media-user&psig=AOvVaw1sLMo11fFheeb48qCpSh_L&ust=1736840895546000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCLDIzNSa8ooDFQAAAAAdAAAAABAE" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
+                                                            <img v-if="user.avatar && user.avatar" :src="'http://127.0.0.1:8000/storage/users/'+ user.avatar" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
+                                                            <img v-else src="https://image.shutterstock.com/image-vector/default-avatar-profile-icon-grey-260nw-518740753.jpg" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%">
                                                             <span style="margin-top: 13px; margin-left: 10px;">{{ user.name }}</span>
                                                         </el-dropdown-item>
                                                     </el-dropdown-menu>
@@ -151,7 +151,7 @@
                                 <CheckList v-for="(item, index) in cardDetail.check_lists" @updateCheckList="reloadDetail" :checkList="item" @openDeleteCheckList="openDeleteCheckList" :key="index" :card="cardDetail" />
                             </div>
                         </div>
-                        <DialogSibar v-if="userByCard" :userAssign="userAssign" @updateDetailCard="getDetailCard(cardDetail.id)" @showControl="handleShowControl" @deleteCard="deleteCard" @changeDeadline="changeDeadline" :card="cardDetail" />
+                        <DialogSibar v-if="userByCard" :userAssign="userAssign" @updateDetailCard="getDetailCard(cardDetail.id)" @showControl="handleShowControl" @deleteCard="deleteCard" @changeDeadline="changeDeadline" :card="cardDetail" @checkSubmitFailed="checkSubmitFailed" @checkSubmitDone="checkSubmitDone" @SubmitCard="SubmitCard" />
                     </div>
                 </div>
             </div>
@@ -404,6 +404,46 @@ export default {
                 type: 'warning'
             }).then(() => {
                 api.deleteCard(data).then(() => {
+                    this.closeModal()
+                    this.getDataList()
+                })
+            })
+        },
+        
+        SubmitCard(data) {
+            this.$confirm('Xác nhận nộp', 'Cảnh báo', {
+                confirmButtonText: 'nộp',
+                cancelButtonText: 'Đóng',
+                type: 'warning'
+            }).then(() => {
+                api.submitCard(data).then(() => {
+                    this.closeModal()
+                    this.getDataList()
+                })
+            })
+        },
+
+        
+        checkSubmitDone(data) {
+            this.$confirm('Xác nhận công việc đã hoàn thành', 'Cảnh báo', {
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Đóng',
+                type: 'warning'
+            }).then(() => {
+                api.checkSubmitDone(data).then(() => {
+                    this.closeModal()
+                    this.getDataList()
+                })
+            })
+        },
+        
+        checkSubmitFailed(data) {
+            this.$confirm('Xác nhận công việc chưa hoàn thành', 'Cảnh báo', {
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Đóng',
+                type: 'warning'
+            }).then(() => {
+                api.checkSubmitFailed(data).then(() => {
                     this.closeModal()
                     this.getDataList()
                 })

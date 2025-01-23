@@ -364,4 +364,14 @@ export default {
         url: '/cards/' + id + '/checkSubmitFailed',
       })
     },
+    searchUserByEmail(email){
+        return axios.get(`/api/users/searchUserByEmail/${email}`);
+    },
+    getAllCardByUserInProject: (projectId, userId) => {
+        return apiAxios({
+          method: 'get',
+          url: '/cards/' + projectId + '/' + userId + '/getAllCardByUserInProject',
+        })
+      },
+    
 }
